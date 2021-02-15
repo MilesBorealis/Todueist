@@ -1,5 +1,5 @@
 # Todueist
-# Author: MilesBorealis; Date: 08/09/2020
+# Author: MilesBorealis; Date: 02/15/2020
 # Based off of u/DinoPunch's reddit post: https://www.reddit.com/r/todoist/comments/fdlb6l/i_use_labels_to_set_deadlines_so_i_can_move_the/
 
 #Imports
@@ -23,6 +23,22 @@ labels1 = api.state['labels']
 current_year = date.today().year
 first_of_the_year = datetime.datetime(current_year, 1, 1)
 
+#Create "Due" labels
+due_found = False
+for i in labels1:
+    if i.data['name'] == "Due":
+        print("Found: " + i.data['name'])
+
+        #change due_found to true as "Due" label already exists
+        due_found = True
+
+if due_found == False:
+    print("Did not find: Due. Adding label.")
+
+    #Create label with color sky blue - 39
+    api.labels.add(name = "Due", color = 39, item_order = 0)
+
+
 #Create month labels
 for i in range(12):
     #Set up condition to identify if month label is found
@@ -43,7 +59,7 @@ for i in range(12):
         print("Did not find: " + first_of_the_year.strftime("%B") + ". Adding label.")
 
         #Create label with month name and color sky blue - 39
-        api.labels.add(name = first_of_the_year.strftime("%B"), color = 39)
+        api.labels.add(name = first_of_the_year.strftime("%B"), color = 39, item_order = 1)
 
     #increment month
     first_of_the_year = first_of_the_year + relativedelta(months=+1)
@@ -73,41 +89,43 @@ for i in range(1,32):
         print("Did not find: " + x + ". Adding label.")
 
         #Create label with day name and color sky blue - 39
-        api.labels.add(name = x, color = 39)
+        api.labels.add(name = x, color = 39, item_order = 2)
 
 
 #Variable for how many years ahead, in addition to the current year, should be added as labels
 years_ahead = 1
 
 #Variable should not be changed.
-years = 1
+year_label = current_year
 
-#Set up condition to identify if year label is found
-year_found = False
 
 #Create year lables
-for i in range(years+years_ahead):
+for i in range(years_ahead + 1):
 
-    #increment year
-    x = today + relativedelta(years=+i)
+    #Set up condition to identify if year label is found
+    year_found = False
 
     #iterate through all labels
     for j in labels1:
 
-        #If labels name already exists
+        #If label name already exists
+
         data = j.data
-        if data['name'] == x.strftime("%Y"):
+        if data['name'] == str(year_label):
             print("Found: " + data['name'])
 
-            #Change year_found to true as year label already exists
+            #label already exists, change year_found to true to prevent label creation
             year_found = True
 
-    #If year label was not found, create label
+    #if year_label was not found, create the label
     if year_found == False:
-        print("Did not find: " + x.strftime("%Y") + ". Adding label.")
+        print("Did not find: " + str(year_label) + ". Adding label.")
 
-        #Create label with year name and color sky blue - 39
-        api.labels.add(name = x.strftime("%Y"), color =39)
+        #create label with year name and color sky blue - 39
+        api.labels.add(name = str(year_label), color = 39, item_order = 3)
+
+    #increment year_label
+    year_label += 1
 
 
 #commit changes
@@ -140,7 +158,7 @@ if taskExists == False:
 #Update Filter
 
 #Days must be greater than 0
-days = 5
+days = 7
 
 #Create string for query
 query = ""
